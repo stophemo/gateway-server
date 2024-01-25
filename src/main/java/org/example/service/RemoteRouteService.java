@@ -1,10 +1,11 @@
 package org.example.service;
 
 import com.tfswx.component.resttemplateplus.TfRestController;
-import io.swagger.annotations.ApiOperation;
+import com.tfswx.component.resttemplateplus.web.TfPostMapping;
 import org.example.dto.RequestUrlGetInputDTO;
 import org.example.model.RouteConfig;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -17,11 +18,9 @@ import java.util.List;
 @TfRestController
 public interface RemoteRouteService {
 
-    @ApiOperation("拉取远端路由数据")
-    @PostMapping(value = "api/lypzgl/pullLypzxx")
+    @TfPostMapping(value = "api/lypzgl/pullLypzxx")
     List<RouteConfig> pullRemoteRoute();
 
-    @ApiOperation("获取路由uri")
-    @PostMapping(value = "api/lypzgl/getLyuri")
+    @TfPostMapping(value = "api/lypzgl/getLyuri")
     String getGatewayRequestUrl(RequestUrlGetInputDTO inputDTO);
 }

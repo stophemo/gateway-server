@@ -22,11 +22,4 @@ public interface LocalRouteService {
      * 更新本地路由数据
      */
     boolean updateRoute();
-
-
-//    void addRoute(String ipAddress, String projectName, String serviceAddress, String pathRegex);
-//
-//    void deleteRoute(String ipAddress, String projectName, String serviceAddress);
-//
-//    void updateRoute(String ipAddress, String projectName, String serviceAddress, String pathRegex);
 }

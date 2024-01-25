@@ -35,5 +35,4 @@ public class RouteConfig {
      * 优先级序号
      */
     private int priorityNum;
-
 }

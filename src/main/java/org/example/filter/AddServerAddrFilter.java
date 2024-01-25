@@ -17,7 +17,7 @@ import java.net.URI;
  * @date: 2024/01/09 16:12
  **/
 @Component
-public class AddServerAddressHeaderFilter implements GlobalFilter, Ordered {
+public class AddServerAddrFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

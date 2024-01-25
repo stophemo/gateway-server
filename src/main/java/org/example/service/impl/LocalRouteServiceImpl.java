@@ -6,6 +6,7 @@ import org.example.model.RouteConfig;
 import org.example.service.LocalRouteService;
 import org.example.service.RemoteRouteService;
 import org.example.util.TreeFileStorageUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class LocalRouteServiceImpl implements LocalRouteService {
 
-    @Resource
+    @Autowired
     private RemoteRouteService remoteRouteService;
 
     @Override
@@ -63,26 +64,4 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         TreeFileStorageUtil.saveTree(sortedRouteConfigList);
         return true;
     }
-
-
-//    @Override
-//    public void addRoute(String ipAddress, String project, String serviceAddress, String pathRegex) {
-//        UserRouteTree userRouteTree = TreeFileStorageUtil.loadTree(UserRouteTree.class);
-//        userRouteTree.addRoute(ipAddress, project, serviceAddress, pathRegex);
-//        TreeFileStorageUtil.saveTree(userRouteTree);
-//    }
-//
-//    @Override
-//    public void deleteRoute(String ipAddress, String project, String serviceAddress) {
-//        UserRouteTree userRouteTree = TreeFileStorageUtil.loadTree(UserRouteTree.class);
-//        userRouteTree.deleteRoute(ipAddress, project, serviceAddress);
-//        TreeFileStorageUtil.saveTree(userRouteTree);
-//    }
-//
-//    @Override
-//    public void updateRoute(String ipAddress, String project, String serviceAddress, String pathRegex) {
-//        UserRouteTree userRouteTree = TreeFileStorageUtil.loadTree(UserRouteTree.class);
-//        userRouteTree.updateRoute(ipAddress, project, serviceAddress, pathRegex);
-//        TreeFileStorageUtil.saveTree(userRouteTree);
-//    }
 }
