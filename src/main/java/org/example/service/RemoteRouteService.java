@@ -1,11 +1,9 @@
 package org.example.service;
 
-import com.tfswx.component.resttemplateplus.TfRestController;
-import com.tfswx.component.resttemplateplus.web.TfPostMapping;
 import org.example.dto.RequestUrlGetInputDTO;
-import org.example.model.RouteConfig;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.example.model.Route;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -15,12 +13,12 @@ import java.util.List;
  * @author: huojie
  * @date: 2024/01/22 13:55
  **/
-@TfRestController
+@FeignClient(name = "application-server", url = "http://192.168.7.30:29090")
 public interface RemoteRouteService {
 
-    @TfPostMapping(value = "api/lypzgl/pullLypzxx")
-    List<RouteConfig> pullRemoteRoute();
+    @PostMapping(value = "api/lypzgl/pullLygzxx")
+    List<Route> pullRemoteRoutes();
 
-    @TfPostMapping(value = "api/lypzgl/getLyuri")
+    @PostMapping(value = "api/lypzgl/getLygzxx")
     String getGatewayRequestUrl(RequestUrlGetInputDTO inputDTO);
 }

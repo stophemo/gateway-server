@@ -1,0 +1,16 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: servera
+#          uri: http://192.168.7.30:8181
+#          predicates:
+#            - Path=/hello
+storage:
+  path: ./storage
+control:
+  address: http://192.168.7.30:29090

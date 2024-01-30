@@ -1,25 +1,18 @@
 package org.example.service;
 
-import org.example.dto.RequestUrlGetInputDTO;
-
 /**
- * 动态路由服务
+ * 本地路由管理服务
  *
  * @author: huojie
- * @date: 2024/01/17 16:01
+ * @date: 2024/01/30 19:59
  **/
 public interface LocalRouteService {
+    String getTargetAddress(String project, String sourceIp, String path, boolean isDefault);
 
-    /**
-     * 获取请求路径
-     *
-     * @param inputDTO 入参
-     * @return String
-     */
-    String getRequestUrl(RequestUrlGetInputDTO inputDTO);
+    void addRoute(String project, String sourceIp, String path, String targetAddress, boolean isDefault);
 
-    /**
-     * 更新本地路由数据
-     */
-    boolean updateRoute();
+    void deleteRoute(String project, String sourceIp, String path, boolean isDefault);
+
+    void updateRoute(String project, String sourceIp, String path, String targetAddress, boolean isDefault);
+
 }

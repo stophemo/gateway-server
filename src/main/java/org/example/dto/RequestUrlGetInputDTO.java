@@ -16,19 +16,11 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RequestUrlGetInputDTO {
-    /**
-     * 用户ip
-     */
-    @NotBlank(message = "请求方ip不能为空")
-    private String ipAddress;
-    /**
-     * 项目名称
-     */
-    @NotBlank(message = "项目名称不能为空")
-    private String projectName;
-    /**
-     * 路径
-     */
-    @NotBlank(message = "请求路径不能为空")
+    @NotBlank(message = "项目简称不能为空")
+    private String project;
+
+    private String sourceIp;
+
+    @NotBlank(message = "具体路径路径不能为空")
     private String path;
 }
