@@ -40,9 +40,6 @@ public class MainFilter implements GlobalFilter, Ordered {
 
         // 1.保存请求方ip、目的地址到头信息
         // 2.将请求转发到目的地址
-        // 浏览器请求的url地址示例为 http://192.168.7.30:8080/xxproject/xxpath  192.168.7.30:8080为当前的网关地址
-        // 通过localRouteService.getTargetAddress(new TargetAddressGetInputDTO(xxproject,sourceIp,xxpath))获取目的地址
-        // 参数从请求url中截取，获取到的目的地址类似为192.168.7.40:9999
 
         ServerHttpRequest request = exchange.getRequest();
         URI requestUri = request.getURI();
