@@ -21,7 +21,7 @@ public class RouteDeleteInputDTO {
     /**
      * 是否是默认路由
      */
-    private boolean isDefault;
+    private Boolean defaultFlag;
     /**
      * 唯一标识
      */

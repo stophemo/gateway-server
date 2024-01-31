@@ -32,12 +32,18 @@ public class RoutesStorageUtil {
 
     public static void saveRoutes(Map<String, Map<String, LinkedList<BaseRoute>>> routes, String storagePath) {
         try {
+            Path filePath = Paths.get(getStoragePath(storagePath));
+
+            // 如果文件夹不存在，则创建
+            Files.createDirectories(filePath.getParent());
+
             String json = JSON.toJSONString(routes);
-            Files.write(Paths.get(getStoragePath(storagePath)), json.getBytes());
+            Files.write(filePath, json.getBytes());
         } catch (IOException e) {
-            log.error("保存路由到文件时出错", e);
+            log.error("保存路由到文件时出错",e.getCause());
         }
     }
+
 
     private static String getStoragePath(String storagePath) {
         return storagePath + "/" + GateWayConstant.ROUTES + ".json";

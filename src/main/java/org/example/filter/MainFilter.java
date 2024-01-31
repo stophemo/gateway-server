@@ -1,10 +1,8 @@
 package org.example.filter;
 
-import cn.hutool.core.bean.BeanUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.TargetAddressGetInputDTO;
 import org.example.service.LocalRouteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -30,12 +28,15 @@ import java.util.Arrays;
 @Component
 public class MainFilter implements GlobalFilter, Ordered {
 
+//    public MainFilter() {
+//        log.info("sssss");
+//    }
+
     @Resource
     private LocalRouteService localRouteService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
 
         // 1.保存请求方ip、目的地址到头信息
         // 2.将请求转发到目的地址

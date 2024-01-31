@@ -13,6 +13,8 @@ import org.example.dto.TargetAddressGetInputDTO;
  **/
 public interface LocalRouteService {
 
+    void refreshRoutes();
+
     void addRoute(RouteAddInputDTO inputDTO);
 
     void updateRoute(RouteUpdateInputDTO inputDTO);

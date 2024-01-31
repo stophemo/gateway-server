@@ -24,7 +24,7 @@ public class RouteUpdateInputDTO {
     /**
      * 是否是默认路由
      */
-    private boolean isDefault;
+    private Boolean defaultFlag;
     /**
      * 路由ID
      */

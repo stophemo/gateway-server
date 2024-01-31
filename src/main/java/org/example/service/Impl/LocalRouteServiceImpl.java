@@ -14,6 +14,7 @@ import org.example.service.LocalRouteService;
 import org.example.service.RemoteRouteService;
 import org.example.util.RoutesStorageUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -38,30 +39,33 @@ public class LocalRouteServiceImpl implements LocalRouteService {
     private Map<String, Map<String, LinkedList<BaseRoute>>> routes;
 
     @Value("${storage.path}")
-    private static String storagePath;
+    private String storagePath;
 
     @Resource
     private RemoteRouteService remoteRouteService;
 
     @PostConstruct
+    @Scheduled(fixedRate = 15 * 60 * 1000)
+    @Override
     public void refreshRoutes() {
+        List<Route> pulledList = null;
         // 从远程拉取路由配置
-        List<Route> pulledList = remoteRouteService.pullRemoteRoutes();
-        // 重新组装为当前网关服务的路由结构
+
+            pulledList = remoteRouteService.pullRemoteRoutes();
+
         if (CollUtil.isEmpty(pulledList)) {
             return;
         }
-        /* 将pulledList 先通过project分组，
-                        再通过sourceIp分组，
-                        再将剩下的字段转换为BaseRoute，
-                        最后组装为Map<String, Map<String, LinkedList<BaseRoute>>> */
-        Map<String, Map<String, LinkedList<BaseRoute>>> routes = pulledList.stream()
-                .collect(Collectors.groupingBy(Route::getProject, Collectors.groupingBy(Route::getSourceIp,
+
+        // 重新组装为当前网关服务的路由结构
+        Map<String, Map<String, LinkedList<BaseRoute>>> routeMap = pulledList.stream()
+                .collect(Collectors.groupingBy(Route::getProject,
+                        Collectors.groupingBy(route -> route.getDefaultFlag() ? "default" : route.getSourceIp(),
                                 Collectors.mapping(route -> BeanUtil.copyProperties(route, BaseRoute.class),
                                         Collectors.toCollection(LinkedList::new)))));
 
         // 将routes保存到本地
-        RoutesStorageUtil.saveRoutes(routes, storagePath);
+        RoutesStorageUtil.saveRoutes(routeMap, storagePath);
     }
 
     @Override
@@ -72,7 +76,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         routes = RoutesStorageUtil.loadRoutes(storagePath);
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.computeIfAbsent(inputDTO.getProject(), k -> new HashMap<>());
-            if (inputDTO.isDefault()) {
+            if (inputDTO.getDefaultFlag()) {
                 LinkedList<BaseRoute> baseRouteList = projectMap.computeIfAbsent(GateWayConstant.DEFAULT_ROUTE, k -> new LinkedList<>());
                 baseRouteList.add(BeanUtil.copyProperties(inputDTO, BaseRoute.class));
             } else {
@@ -95,7 +99,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.get(inputDTO.getProject());
             if (projectMap != null) {
-                if (inputDTO.isDefault()) {
+                if (inputDTO.getDefaultFlag()) {
                     LinkedList<BaseRoute> baseRouteList = projectMap.get(GateWayConstant.DEFAULT_ROUTE);
                     if (baseRouteList != null) {
                         baseRouteList.removeIf(baseRoute -> baseRoute.getId().equals(inputDTO.getId()));
@@ -125,7 +129,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.get(inputDTO.getProject());
             if (projectMap != null) {
-                if (inputDTO.isDefault()) {
+                if (inputDTO.getDefaultFlag()) {
                     LinkedList<BaseRoute> baseRouteList = projectMap.get(GateWayConstant.DEFAULT_ROUTE);
                     if (baseRouteList != null) {
                         baseRouteList.removeIf(baseRoute -> baseRoute.getId().equals(inputDTO.getId()));

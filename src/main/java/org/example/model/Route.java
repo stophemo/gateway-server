@@ -1,5 +1,6 @@
 package org.example.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,14 +17,17 @@ public class Route extends BaseRoute {
     /**
      * 项目标识
      */
+    @JSONField(name = "project")
     private String project;
     /**
      * 源IP
      */
+    @JSONField(name = "sourceIp")
     private String sourceIp;
 
     /**
      * 是否是默认路由
      */
-    private boolean isDefault;
+    @JSONField(name = "defaultFlag")
+    private Boolean defaultFlag;
 }
