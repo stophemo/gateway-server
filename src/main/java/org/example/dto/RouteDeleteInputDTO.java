@@ -1,18 +1,15 @@
-package org.example.model;
+package org.example.dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * 路由规则定义
+ * 路由删除入参
  *
  * @author: huojie
- * @date: 2024/01/22 14:13
+ * @date: 2024/01/31 10:34
  **/
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class Route extends BaseRoute {
-
+public class RouteDeleteInputDTO {
     /**
      * 项目标识
      */
@@ -21,9 +18,12 @@ public class Route extends BaseRoute {
      * 源IP
      */
     private String sourceIp;
-
     /**
      * 是否是默认路由
      */
     private boolean isDefault;
+    /**
+     * 唯一标识
+     */
+    private String id;
 }

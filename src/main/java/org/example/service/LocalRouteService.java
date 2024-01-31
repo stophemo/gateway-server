@@ -1,5 +1,10 @@
 package org.example.service;
 
+import org.example.dto.RouteAddInputDTO;
+import org.example.dto.RouteDeleteInputDTO;
+import org.example.dto.RouteUpdateInputDTO;
+import org.example.dto.TargetAddressGetInputDTO;
+
 /**
  * 本地路由管理服务
  *
@@ -7,12 +12,13 @@ package org.example.service;
  * @date: 2024/01/30 19:59
  **/
 public interface LocalRouteService {
-    String getTargetAddress(String project, String sourceIp, String path, boolean isDefault);
 
-    void addRoute(String project, String sourceIp, String path, String targetAddress, boolean isDefault);
+    void addRoute(RouteAddInputDTO inputDTO);
 
-    void deleteRoute(String project, String sourceIp, String path, boolean isDefault);
+    void updateRoute(RouteUpdateInputDTO inputDTO);
 
-    void updateRoute(String project, String sourceIp, String path, String targetAddress, boolean isDefault);
+    void deleteRoute(RouteDeleteInputDTO inputDTO);
+
+    String getTargetAddress(TargetAddressGetInputDTO inputDTO);
 
 }

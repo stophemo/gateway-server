@@ -11,7 +11,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class RouteInfo {
+public class BaseRoute {
+    /**
+     * 唯一标识
+     */
+    private String id;
+    /**
+     * 匹配谓词path
+     */
     private String path;
+    /**
+     * 目标地址
+     */
     private String targetAddress;
+    /**
+     * 序号
+     */
+    private Integer num;
 }

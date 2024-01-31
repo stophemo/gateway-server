@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.GateWayConstant;
-import org.example.model.RouteInfo;
+import org.example.model.BaseRoute;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,12 +16,12 @@ import java.util.Map;
 @Slf4j
 public class RoutesStorageUtil {
 
-    public static Map<String, Map<String, LinkedList<RouteInfo>>> loadRoutes(String storagePath) {
+    public static Map<String, Map<String, LinkedList<BaseRoute>>> loadRoutes(String storagePath) {
         try {
             Path filePath = Paths.get(getStoragePath(storagePath));
             if (Files.exists(filePath)) {
                 String content = new String(Files.readAllBytes(filePath));
-                return JSON.parseObject(content, new TypeReference<Map<String, Map<String, LinkedList<RouteInfo>>>>() {
+                return JSON.parseObject(content, new TypeReference<Map<String, Map<String, LinkedList<BaseRoute>>>>() {
                 });
             }
         } catch (IOException e) {
@@ -30,7 +30,7 @@ public class RoutesStorageUtil {
         return null;
     }
 
-    public static void saveRoutes(Map<String, Map<String, LinkedList<RouteInfo>>> routes, String storagePath) {
+    public static void saveRoutes(Map<String, Map<String, LinkedList<BaseRoute>>> routes, String storagePath) {
         try {
             String json = JSON.toJSONString(routes);
             Files.write(Paths.get(getStoragePath(storagePath)), json.getBytes());
