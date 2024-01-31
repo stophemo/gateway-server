@@ -28,10 +28,6 @@ import java.util.Arrays;
 @Component
 public class MainFilter implements GlobalFilter, Ordered {
 
-//    public MainFilter() {
-//        log.info("sssss");
-//    }
-
     @Resource
     private LocalRouteService localRouteService;
 

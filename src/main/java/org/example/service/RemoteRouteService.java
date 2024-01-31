@@ -1,14 +1,11 @@
 package org.example.service;
 
 import com.alibaba.fastjson.JSONObject;
-import org.example.dto.RequestUrlGetInputDTO;
 import org.example.model.Route;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 远端路由服务

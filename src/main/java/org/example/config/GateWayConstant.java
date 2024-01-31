@@ -9,7 +9,7 @@ package org.example.config;
 public class GateWayConstant {
 
     public static final String ROUTE_MAP = "ROUTE_MAP";
-    public static final String DEFAULT_ROUTE = "DEFAULT_ROUTE";
+    public static final String DEFAULT_ROUTE = "default";
     public static final String PROJECT = "project";
     public static final String SOURCEIP = "sourceIp";
     public static final String PATH = "antPath";
