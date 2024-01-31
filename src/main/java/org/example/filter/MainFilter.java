@@ -12,11 +12,13 @@ import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.Arrays;
 
 /**
  * 添加请求方ip到请求头,目的地址到响应头
@@ -33,38 +35,46 @@ public class MainFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // 保存请求方ip、目的地址到头信息
-        ServerHttpRequest request = exchange.getRequest();
-        InetSocketAddress remoteAddress = request.getRemoteAddress();
-        String sourceIp = null;
-        if (remoteAddress != null) {
-            sourceIp = remoteAddress.getHostString();
-            request.mutate().header("sourceIp", sourceIp);
-        }
-        URI uri = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
-        if (uri != null) {
-            String targetAddress = uri.toString();
-            request.mutate().header("targetAddress", targetAddress);
-        }
 
-        /* 将请求转发到目的地址
-           浏览器请求的url地址示例为 http://192.168.7.30:8080/xxproject/xxpath  192.168.7.30:8080为当前的网关地址
-           通过localRouteService.getTargetAddress(new TargetAddressGetInputDTO(xxproject,sourceIp,xxpath))获取目的地址
-           参数从请求url中截取，获取到的目的地址类似为192.168.7.40:9999
-         */
-        String project = null;
-        String path = null;
-        if (uri != null) {
-            project = uri.getPath().split("/")[1];
-            path = uri.getPath().substring(uri.getPath().indexOf("/", 1));
-        }
-        String targetAddress = localRouteService.getTargetAddress(new TargetAddressGetInputDTO(project, sourceIp, path));
-        if (targetAddress != null) {
-            URI targetUri = URI.create(targetAddress);
-            ServerHttpRequest newRequest = request.mutate().uri(targetUri).build();
-            exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, targetUri);
-            return chain.filter(exchange.mutate().request(newRequest).build());
-        }
+
+        // 1.保存请求方ip、目的地址到头信息
+        // 2.将请求转发到目的地址
+        // 浏览器请求的url地址示例为 http://192.168.7.30:8080/xxproject/xxpath  192.168.7.30:8080为当前的网关地址
+        // 通过localRouteService.getTargetAddress(new TargetAddressGetInputDTO(xxproject,sourceIp,xxpath))获取目的地址
+        // 参数从请求url中截取，获取到的目的地址类似为192.168.7.40:9999
+
+        ServerHttpRequest request = exchange.getRequest();
+        URI requestUri = request.getURI();
+        String path = requestUri.getPath();
+
+        // 从请求URL中截取项目名和路径
+        String[] parts = path.split("/");
+        String project = parts[1];
+        String pathInProject = "/" + String.join("/", Arrays.copyOfRange(parts, 2, parts.length));
+
+        // 获取请求方IP
+        InetSocketAddress remoteAddress = request.getRemoteAddress();
+        String sourceIp = remoteAddress.getAddress().getHostAddress();
+
+        // 调用localRouteService.getTargetAddress获取目标地址
+        TargetAddressGetInputDTO inputDTO = new TargetAddressGetInputDTO(project, sourceIp, pathInProject);
+        String targetAddress = localRouteService.getTargetAddress(inputDTO);
+
+        // 构建新的请求URI
+        URI newUri = UriComponentsBuilder.fromHttpUrl(targetAddress + pathInProject).build().toUri();
+
+        // 创建新的请求，并在请求头中添加请求方IP和目标地址
+        ServerHttpRequest newRequest = request.mutate()
+                .uri(newUri)
+                .header("X-Source-IP", sourceIp)
+                .header("X-Target-Address", targetAddress)
+                .build();
+
+        // 将新的请求添加到exchange中
+        exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newUri);
+
+        return chain.filter(exchange.mutate().request(newRequest).build());
+
     }
 
     @Override
