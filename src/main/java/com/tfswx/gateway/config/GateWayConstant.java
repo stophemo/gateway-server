@@ -1,4 +1,4 @@
-package org.example.config;
+package com.tfswx.gateway.config;
 
 /**
  * 常量

@@ -1,18 +1,20 @@
-package org.example.service.Impl;
+package com.tfswx.gateway.service.Impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import org.example.config.GateWayConstant;
-import org.example.dto.RouteAddInputDTO;
-import org.example.dto.RouteDeleteInputDTO;
-import org.example.dto.RouteUpdateInputDTO;
-import org.example.dto.TargetAddressGetInputDTO;
-import org.example.model.BaseRoute;
-import org.example.model.Route;
-import org.example.service.LocalRouteService;
-import org.example.service.RemoteRouteService;
-import org.example.util.RoutesStorageUtil;
+import com.tfswx.futool.core.thread.concurrent.ConcurrentCallMethodMerge;
+import com.tfswx.gateway.config.GateWayConstant;
+import com.tfswx.gateway.model.BaseRoute;
+import com.tfswx.gateway.model.Route;
+import com.tfswx.gateway.service.LocalRouteService;
+import com.tfswx.gateway.util.RoutesStorageUtil;
+import lombok.extern.slf4j.Slf4j;
+import com.tfswx.gateway.dto.RouteAddInputDTO;
+import com.tfswx.gateway.dto.RouteDeleteInputDTO;
+import com.tfswx.gateway.dto.RouteUpdateInputDTO;
+import com.tfswx.gateway.dto.TargetAddressGetInputDTO;
+import com.tfswx.gateway.service.RemoteRouteService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -33,10 +35,11 @@ import java.util.stream.Collectors;
  * @author: huojie
  * @date: 2024/01/30 20:04
  **/
+@Slf4j
 @Service
 public class LocalRouteServiceImpl implements LocalRouteService {
 
-    private Map<String, Map<String, LinkedList<BaseRoute>>> routes;
+    private volatile Map<String, Map<String, LinkedList<BaseRoute>>> routes;
 
     @Value("${storage.path}")
     private String storagePath;
@@ -44,28 +47,51 @@ public class LocalRouteServiceImpl implements LocalRouteService {
     @Resource
     private RemoteRouteService remoteRouteService;
 
-    @PostConstruct
-    @Scheduled(fixedRate = 15 * 60 * 1000)
-    @Override
-    public void refreshRoutes() {
+    private final ConcurrentCallMethodMerge callMethodMerge;
+
+    public LocalRouteServiceImpl() {
+        callMethodMerge = new ConcurrentCallMethodMerge(1, this::refreshRoutesHandler);
+    }
+
+    private void refreshRoutesHandler() {
         List<Route> pulledList = null;
         // 从远程拉取路由配置
 
+        try {
             pulledList = remoteRouteService.pullRemoteRoutes();
+        } catch (Exception e) {
+            log.warn("拉取数据失败,请确认控制端服务是否启动", e);
+            routes = RoutesStorageUtil.loadRoutes(storagePath);
+        }
+
 
         if (CollUtil.isEmpty(pulledList)) {
             return;
         }
 
-        // 重新组装为当前网关服务的路由结构
-        Map<String, Map<String, LinkedList<BaseRoute>>> routeMap = pulledList.stream()
+        // 过滤掉无效路由数据、重新组装为当前网关服务的路由结构
+        routes = pulledList.stream()
+                .filter(route -> StrUtil.isNotBlank(route.getProject())
+                        && StrUtil.isNotBlank(route.getId())
+                        && route.getDefaultFlag() != null
+                        && route.getDefaultFlag() || StrUtil.isNotBlank(route.getSourceIp()))
                 .collect(Collectors.groupingBy(Route::getProject,
                         Collectors.groupingBy(route -> route.getDefaultFlag() ? "default" : route.getSourceIp(),
                                 Collectors.mapping(route -> BeanUtil.copyProperties(route, BaseRoute.class),
                                         Collectors.toCollection(LinkedList::new)))));
 
         // 将routes保存到本地
-        RoutesStorageUtil.saveRoutes(routeMap, storagePath);
+        RoutesStorageUtil.saveRoutes(routes, storagePath);
+    }
+
+    /**
+     * 初始化，定时更新
+     */
+    @PostConstruct
+    @Scheduled(fixedRate = 15 * 60 * 1000)
+    @Override
+    public void refreshRoutes() {
+        callMethodMerge.call();
     }
 
     @Override
@@ -154,7 +180,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
             throw new IllegalArgumentException("入参对象不可为空");
         }
         PathMatcher pathMatcher = new AntPathMatcher();
-        routes = RoutesStorageUtil.loadRoutes(storagePath);
+//        routes = RoutesStorageUtil.loadRoutes(storagePath);
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.get(inputDTO.getProject());
             if (projectMap != null) {

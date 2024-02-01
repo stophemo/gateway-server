@@ -1,10 +1,10 @@
-package org.example.util;
+package com.tfswx.gateway.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.tfswx.gateway.config.GateWayConstant;
+import com.tfswx.gateway.model.BaseRoute;
 import lombok.extern.slf4j.Slf4j;
-import org.example.config.GateWayConstant;
-import org.example.model.BaseRoute;
 
 import java.io.IOException;
 import java.nio.file.Files;

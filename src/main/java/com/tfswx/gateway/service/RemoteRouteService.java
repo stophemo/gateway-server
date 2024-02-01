@@ -1,8 +1,9 @@
-package org.example.service;
+package com.tfswx.gateway.service;
 
 import com.alibaba.fastjson.JSONObject;
-import org.example.model.Route;
+import com.tfswx.gateway.model.Route;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
@@ -13,7 +14,8 @@ import java.util.List;
  * @author: huojie
  * @date: 2024/01/22 13:55
  **/
-@FeignClient(name = "application-server", url = "http://192.168.1.85:9090")
+@Lazy
+@FeignClient(name = "application-server", url = "${feign.client.config.default.url}")
 public interface RemoteRouteService {
 
     @PostMapping(value = "api/lypzgl/pullLygzxx")

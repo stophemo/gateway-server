@@ -6,11 +6,15 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: servera
-          uri: http://192.168.7.30:8181
+        - id: default
+          uri: no://op
           predicates:
             - Path=/**
 storage:
   path: ../storage
-control:
-  address: http://192.168.7.30:29090
+feign:
+  client:
+    config:
+      default:
+        url: ${remote.route.service.url:http://192.168.1.85:9090}
+

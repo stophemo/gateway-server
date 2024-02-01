@@ -1,4 +1,4 @@
-package org.example.dto;
+package com.tfswx.gateway.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

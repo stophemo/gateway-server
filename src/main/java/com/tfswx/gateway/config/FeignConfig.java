@@ -1,4 +1,4 @@
-package org.example.config;
+package com.tfswx.gateway.config;
 
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;

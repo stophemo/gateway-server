@@ -38,6 +38,7 @@ dependencies {
     implementation("org.projectlombok:lombok:1.18.6")
     annotationProcessor 'org.projectlombok:lombok:1.18.6'
     implementation 'com.alibaba:fastjson:1.2.83'
+    implementation("com.tfswx:tf-futool-core:${lcdpVersion}")
     // 存储组件
 //    implementation("com.tfswx:tf-spring-boot-storage-dxcc-starter:${lcdpVersion}")
 //    runtimeOnly("com.tfswx:tf-spring-boot-storage-dxcc-driver-local:${lcdpVersion}")

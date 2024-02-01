@@ -1,9 +1,9 @@
-package org.example.service;
+package com.tfswx.gateway.service;
 
-import org.example.dto.RouteAddInputDTO;
-import org.example.dto.RouteDeleteInputDTO;
-import org.example.dto.RouteUpdateInputDTO;
-import org.example.dto.TargetAddressGetInputDTO;
+import com.tfswx.gateway.dto.RouteAddInputDTO;
+import com.tfswx.gateway.dto.RouteDeleteInputDTO;
+import com.tfswx.gateway.dto.RouteUpdateInputDTO;
+import com.tfswx.gateway.dto.TargetAddressGetInputDTO;
 
 /**
  * 本地路由管理服务

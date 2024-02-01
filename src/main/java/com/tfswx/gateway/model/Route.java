@@ -1,4 +1,4 @@
-package org.example.model;
+package com.tfswx.gateway.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
