@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  **/
 @RequestMapping("api/gateway")
 @RestController
-public class RouteManageController {
+public class RoutesController {
 
     @Resource
     private LocalRouteService localRouteService;

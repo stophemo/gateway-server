@@ -14,8 +14,7 @@ import java.util.List;
  * @author: huojie
  * @date: 2024/01/22 13:55
  **/
-@Lazy
-@FeignClient(name = "application-server", url = "${feign.client.config.default.url}")
+@FeignClient(name = "application-server", url = "${feignClient.url}")
 public interface RemoteRouteService {
 
     @PostMapping(value = "api/lypzgl/pullLygzxx")

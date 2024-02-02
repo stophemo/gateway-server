@@ -15,5 +15,7 @@ public class GateWayConstant {
     public static final String PATH = "antPath";
     public static final String TARGETADDRESS = "targetAddress";
     public static final String ISDEFAULT = "isDefault";
-    public static final String ROUTES = "routes";
+    public static final String ROUTES_FILE_NAME = "routes.json";
+
+    public static final String DNS_FILE_NAME = "dns_List.json";
 }

@@ -8,7 +8,7 @@ import com.tfswx.gateway.config.GateWayConstant;
 import com.tfswx.gateway.model.BaseRoute;
 import com.tfswx.gateway.model.Route;
 import com.tfswx.gateway.service.LocalRouteService;
-import com.tfswx.gateway.util.RoutesStorageUtil;
+import com.tfswx.gateway.util.GatewayStorageUtil;
 import lombok.extern.slf4j.Slf4j;
 import com.tfswx.gateway.dto.RouteAddInputDTO;
 import com.tfswx.gateway.dto.RouteDeleteInputDTO;
@@ -61,7 +61,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
             pulledList = remoteRouteService.pullRemoteRoutes();
         } catch (Exception e) {
             log.warn("拉取数据失败,请确认控制端服务是否启动", e);
-            routes = RoutesStorageUtil.loadRoutes(storagePath);
+            routes = GatewayStorageUtil.loadRoutes(storagePath);
         }
 
 
@@ -81,7 +81,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
                                         Collectors.toCollection(LinkedList::new)))));
 
         // 将routes保存到本地
-        RoutesStorageUtil.saveRoutes(routes, storagePath);
+        GatewayStorageUtil.saveRoutes(routes, storagePath);
     }
 
     /**
@@ -99,7 +99,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         if (inputDTO == null) {
             throw new IllegalArgumentException("入参对象不可为空");
         }
-        routes = RoutesStorageUtil.loadRoutes(storagePath);
+        routes = GatewayStorageUtil.loadRoutes(storagePath);
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.computeIfAbsent(inputDTO.getProject(), k -> new HashMap<>());
             if (inputDTO.getDefaultFlag()) {
@@ -113,7 +113,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
                 baseRouteList.add(BeanUtil.copyProperties(inputDTO, BaseRoute.class));
             }
         }
-        RoutesStorageUtil.saveRoutes(routes, storagePath);
+        GatewayStorageUtil.saveRoutes(routes, storagePath);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         if (inputDTO == null) {
             throw new IllegalArgumentException("入参对象不可为空");
         }
-        routes = RoutesStorageUtil.loadRoutes(storagePath);
+        routes = GatewayStorageUtil.loadRoutes(storagePath);
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.get(inputDTO.getProject());
             if (projectMap != null) {
@@ -143,7 +143,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
                 }
             }
         }
-        RoutesStorageUtil.saveRoutes(routes, storagePath);
+        GatewayStorageUtil.saveRoutes(routes, storagePath);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         if (inputDTO == null) {
             throw new IllegalArgumentException("入参对象不可为空");
         }
-        routes = RoutesStorageUtil.loadRoutes(storagePath);
+        routes = GatewayStorageUtil.loadRoutes(storagePath);
         if (StrUtil.isNotBlank(inputDTO.getProject())) {
             Map<String, LinkedList<BaseRoute>> projectMap = routes.get(inputDTO.getProject());
             if (projectMap != null) {
@@ -171,7 +171,7 @@ public class LocalRouteServiceImpl implements LocalRouteService {
                 }
             }
         }
-        RoutesStorageUtil.saveRoutes(routes, storagePath);
+        GatewayStorageUtil.saveRoutes(routes, storagePath);
     }
 
     @Override

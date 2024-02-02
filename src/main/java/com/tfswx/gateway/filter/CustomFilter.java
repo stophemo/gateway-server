@@ -34,18 +34,17 @@ public class CustomFilter implements GlobalFilter, Ordered {
     @Resource
     private LocalRouteService localRouteService;
 
-    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         // 1.保存请求方ip、目的地址到头信息
         // 2.将请求转发到目的地址
         ServerHttpRequest request = exchange.getRequest();
         URI requestUri = request.getURI();
+        String host = requestUri.getHost();
         String path = requestUri.getPath();
 
-        String[] parts = path.split("/");
-        String project = parts[1];
-        String pathInProject = "/" + String.join("/", Arrays.copyOfRange(parts, 2, parts.length));
+        String[] parts = host.split("\\.");
+        String engineeringName = parts[3];
 
         InetSocketAddress remoteAddress = request.getRemoteAddress();
         String sourceIp;
@@ -55,11 +54,11 @@ public class CustomFilter implements GlobalFilter, Ordered {
             sourceIp = null;
         }
 
-        TargetAddressGetInputDTO inputDTO = new TargetAddressGetInputDTO(project, sourceIp, pathInProject);
+        TargetAddressGetInputDTO inputDTO = new TargetAddressGetInputDTO(engineeringName, sourceIp, path);
         String targetAddress = localRouteService.getTargetAddress(inputDTO);
         log.info("Target address: {}", targetAddress);
 
-        URI newUri = UriComponentsBuilder.fromHttpUrl(targetAddress + pathInProject).build().toUri();
+        URI newUri = UriComponentsBuilder.fromHttpUrl(targetAddress + path).build().toUri();
         log.info("New URI: {}", newUri);
 
         ServerHttpRequest newRequest = request.mutate().uri(newUri).build();
