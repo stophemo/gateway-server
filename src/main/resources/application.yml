@@ -11,7 +11,7 @@ spring:
           predicates:
             - Path=/**
 storage:
-  path: ../storage
+  path: .main/resources
 feignClient:
   url: http://192.168.1.85:9090
 #dns:

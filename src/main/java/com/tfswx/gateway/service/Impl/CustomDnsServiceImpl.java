@@ -47,7 +47,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
             dnsItemMap = GatewayStorageUtil.loadDnsMap(storagePath);
         }
         localIp = getLocalIp();
-        log.info("本地IP为：{}", localIp);
+        log.info("使用前请配置内网DNS服务器为：{}", localIp);
     }
 
     @Scheduled(fixedRate = 15 * 60 * 1000)
