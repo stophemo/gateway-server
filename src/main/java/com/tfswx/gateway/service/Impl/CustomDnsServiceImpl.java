@@ -1,13 +1,14 @@
 package com.tfswx.gateway.service.Impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.tfswx.gateway.config.CustomDnsConstant;
 import com.tfswx.gateway.model.CustomDomain;
 import com.tfswx.gateway.model.DnsItem;
 import com.tfswx.gateway.service.CustomDnsService;
 import com.tfswx.gateway.util.GatewayStorageUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -30,13 +31,13 @@ import java.util.Map;
 public class CustomDnsServiceImpl implements CustomDnsService {
 
     private volatile Map<String, DnsItem> dnsItemMap;
-    private byte[] localIp;
+    private String localIp;
 
     @Value("${storage.path}")
     private String storagePath;
 
-    @Value("${dns.gateway.ip}")
-    private String dnsHostServerIp;
+    @Autowired
+    private Environment environment;
 
     @PostConstruct
     public void init() {
@@ -46,6 +47,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
             dnsItemMap = GatewayStorageUtil.loadDnsMap(storagePath);
         }
         localIp = getLocalIp();
+        log.info("本地IP为：{}", localIp);
     }
 
     @Scheduled(fixedRate = 15 * 60 * 1000)
@@ -63,8 +65,9 @@ public class CustomDnsServiceImpl implements CustomDnsService {
         if (StrUtil.isBlank(customDomain.getProejctName()) || StrUtil.isBlank(customDomain.getEngineeringName())) {
             throw new IllegalArgumentException("项目名和工程名不能为空");
         }
-        append(customDomain.getTotalDomain(), localIp);
-        append(customDomain.getShortDomain(), localIp);
+        byte[] parseIpAddress = parseIpAddress(localIp);
+        append(customDomain.getTotalDomain(), parseIpAddress);
+        append(customDomain.getShortDomain(), parseIpAddress);
         GatewayStorageUtil.saveDnsMap(dnsItemMap, storagePath);
     }
 
@@ -92,13 +95,14 @@ public class CustomDnsServiceImpl implements CustomDnsService {
      *
      * @return 本机ip
      */
-    private byte[] getLocalIp() {
-        // 如果配置了dns.host.server.ip属性，则使用该配置
-        if (dnsHostServerIp != null && !dnsHostServerIp.isEmpty()) {
-            return parseIpAddress(dnsHostServerIp);
+    private String getLocalIp() {
+        String gatewayIp = environment.getProperty("dns.gateway.ip");
+        // 如果配置了dns.gateway.ip属性，则使用该配置
+        if (gatewayIp != null && !gatewayIp.isEmpty()) {
+            return gatewayIp;
         }
 
-        // 如果没有配置dns.host.server.ip属性，则尝试获取本机IP
+        // 如果没有配置dns.gateway.ip属性，则尝试获取本机IP
         try {
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
             while (networkInterfaces.hasMoreElements()) {
@@ -108,16 +112,17 @@ public class CustomDnsServiceImpl implements CustomDnsService {
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
                     if (!inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
-                        return inetAddress.getAddress();
+                        // 获取ip地址
+                        gatewayIp = inetAddress.getHostAddress();
                     }
                 }
             }
         } catch (SocketException e) {
-            throw new RuntimeException("获取本机IP失败，请手动配置dns.host.server.ip属性", e);
+            throw new RuntimeException("获取本机IP失败，请手动配置dns.gateway.ip属性", e);
         }
 
         // 返回空数组或者抛出异常，表示获取失败
-        return new byte[0];
+        return gatewayIp;
     }
 
     private byte[] parseIpAddress(String ipAddress) {
@@ -125,8 +130,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
             InetAddress inetAddress = InetAddress.getByName(ipAddress);
             return inetAddress.getAddress();
         } catch (Exception e) {
-            log.error("解析ip地址失败", e);
-            return new byte[0];
+            throw new RuntimeException("解析ip地址失败", e);
         }
     }
 

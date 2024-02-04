@@ -1,10 +1,10 @@
 package com.tfswx.gateway.dns;
 
-import cn.hutool.core.util.StrUtil;
-import com.tfswx.gateway.config.CustomDnsConstant;
 import com.tfswx.gateway.model.DnsItem;
 import com.tfswx.gateway.service.CustomDnsService;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,10 +13,12 @@ import io.netty.handler.codec.dns.*;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author CYVATION-LXL
@@ -24,6 +26,9 @@ import java.util.Map;
 @Slf4j
 @Component
 public final class DnsServer implements InitializingBean {
+
+    @Autowired
+    private Environment environment;
 
     @Resource
     private CustomDnsService customDnsService;
@@ -76,6 +81,28 @@ public final class DnsServer implements InitializingBean {
                                 dnsResponse.addRecord(DnsSection.ANSWER, queryAnswer);
                                 return dnsResponse;
                             }
+//                            private DatagramDnsResponse getDatagramDnsResponse(DatagramDnsQuery msg, int id, DnsQuestion question, byte[] destIp) {
+//                                int destPort = Integer.parseInt(Objects.requireNonNull(environment.getProperty("server.port")));
+//
+//                                DatagramDnsResponse dnsResponse = new DatagramDnsResponse(msg.recipient(), msg.sender(), id);
+//                                dnsResponse.addRecord(DnsSection.QUESTION, question);
+//
+//                                // Add IP address to the ANSWER section
+//                                DefaultDnsRawRecord queryAnswer = new DefaultDnsRawRecord(
+//                                        question.name(),
+//                                        DnsRecordType.A, 600, Unpooled.wrappedBuffer(destIp));
+//                                dnsResponse.addRecord(DnsSection.ANSWER, queryAnswer);
+//
+//                                // Add custom port record, using SRV record type
+//                                ByteBuf portBuffer = Unpooled.buffer(2);
+//                                portBuffer.writeShortLE(destPort);
+//                                DnsRawRecord portRecord = new DefaultDnsRawRecord(
+//                                        question.name(),
+//                                        DnsRecordType.SRV, 600, portBuffer);
+//                                dnsResponse.addRecord(DnsSection.ANSWER, portRecord);
+//
+//                                return dnsResponse;
+//                            }
 
                             @Override
                             public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
