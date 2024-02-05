@@ -77,6 +77,7 @@ public class CustomFilter implements GlobalFilter, Ordered {
 
         return chain.filter(exchange.mutate().request(newRequest).build()).then(Mono.defer(() -> {
             exchange.getResponse().getHeaders().entrySet().stream()
+                    // 跨域请求头重复处理
                     .filter(kv -> DISTINCT_HEADERS.contains(kv.getKey()) && kv.getValue() != null && kv.getValue().size() > 1)
                     .forEach(kv -> {
                         List<String> list = new ArrayList<>(1);
