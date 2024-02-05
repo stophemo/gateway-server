@@ -1,6 +1,7 @@
 package com.tfswx.gateway.service.Impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.tfswx.gateway.config.CustomDnsConstant;
 import com.tfswx.gateway.model.CustomDomain;
 import com.tfswx.gateway.model.DnsItem;
 import com.tfswx.gateway.service.CustomDnsService;
@@ -85,7 +86,17 @@ public class CustomDnsServiceImpl implements CustomDnsService {
         if (StrUtil.isBlank(name)) {
             return null;
         }
-        return dnsItemMap.get(name);
+
+        if (StrUtil.startWith(name, CustomDnsConstant.RJSJPT) ||
+            StrUtil.startWith(name, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)) {
+
+            DnsItem dnsItem = new DnsItem(name, localIp, parseIpAddress(localIp));
+            dnsItemMap.putIfAbsent(name, dnsItem);
+            return dnsItem;
+
+        } else {
+            return dnsItemMap.get(name);
+        }
     }
 
     /**
