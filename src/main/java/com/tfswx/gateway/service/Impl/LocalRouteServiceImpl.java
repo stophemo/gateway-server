@@ -9,6 +9,7 @@ import com.tfswx.gateway.model.BaseRoute;
 import com.tfswx.gateway.model.Route;
 import com.tfswx.gateway.service.LocalRouteService;
 import com.tfswx.gateway.util.GatewayStorageUtil;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import com.tfswx.gateway.dto.RouteAddInputDTO;
 import com.tfswx.gateway.dto.RouteDeleteInputDTO;
@@ -56,14 +57,12 @@ public class LocalRouteServiceImpl implements LocalRouteService {
     private void refreshRoutesHandler() {
         List<Route> pulledList = null;
         // 从远程拉取路由配置
-
         try {
             pulledList = remoteRouteService.pullRemoteRoutes();
-        } catch (Exception e) {
-            log.warn("拉取数据失败,请确认控制端服务是否启动", e);
+        } catch (FeignException feignException) {
+            log.warn("Feign拉取路由配置 请求失败，状态码：{}, 请求URL：{}", feignException.status(), feignException.request().url(), feignException);
             routes = GatewayStorageUtil.loadRoutes(storagePath);
         }
-
 
         if (CollUtil.isEmpty(pulledList)) {
             return;

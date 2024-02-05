@@ -21,8 +21,13 @@ public interface RemoteRouteService {
     JSONObject pullRemoteRoutesAsMap();
 
     default List<Route> pullRemoteRoutes() {
-        JSONObject jsonObject = pullRemoteRoutesAsMap();
-        // 将json对象中的data数组转为List<Route>
-        return jsonObject.getJSONArray("data").toJavaList(Route.class);
+        try {
+            JSONObject jsonObject = pullRemoteRoutesAsMap();
+            // 将json对象中的data数组转为List<Route>
+            return jsonObject.getJSONArray("data").toJavaList(Route.class);
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 }

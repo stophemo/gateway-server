@@ -1,20 +1,29 @@
 server:
-  port: 8888
+  port: 88
 spring:
-  application:
-    name: api-gateway
   cloud:
     gateway:
+      # 网关全局跨域配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+        # 解决options请求被拦截的问题
+        add-to-simple-url-handler-mapping: true
       routes:
         - id: default
           uri: no://op
           predicates:
             - Path=/**
 storage:
-  path: .main/resources
+  path: src/main/resources/data
 feignClient:
-  url: http://192.168.1.85:9090
-#dns:
-#  gateway:
-#    ip: 192.168.7.30
+  #  url: http://192.168.1.85:9090
+  url: http://192.168.1.29:29090
+dns:
+  gateway:
+    ip: 192.168.7.30
 
