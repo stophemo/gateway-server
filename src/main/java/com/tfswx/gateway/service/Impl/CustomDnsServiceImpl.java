@@ -87,8 +87,8 @@ public class CustomDnsServiceImpl implements CustomDnsService {
             return null;
         }
 
-        if (StrUtil.startWith(name, CustomDnsConstant.RJSJPT) ||
-            StrUtil.startWith(name, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)) {
+        if (StrUtil.startWith(name, CustomDnsConstant.RJSJPT)
+                || StrUtil.startWith(name, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)) {
 
             DnsItem dnsItem = new DnsItem(name, localIp, parseIpAddress(localIp));
             dnsItemMap.putIfAbsent(name, dnsItem);

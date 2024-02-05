@@ -1,6 +1,7 @@
 package com.tfswx.gateway.filter;
 
 import cn.hutool.core.util.StrUtil;
+import com.tfswx.gateway.config.CustomDnsConstant;
 import com.tfswx.gateway.dto.TargetAddressGetInputDTO;
 import com.tfswx.gateway.service.LocalRouteService;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +52,16 @@ public class CustomFilter implements GlobalFilter, Ordered {
         URI requestUri = request.getURI();
         String host = requestUri.getHost();
         String path = requestUri.getPath();
-
-        String[] parts = host.split("\\.");
-        String engineeringName = parts[3];
+        String engineeringName;
+        if (StrUtil.startWith(host, CustomDnsConstant.RJSJPT)
+                || StrUtil.startWith(host, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)
+                && StrUtil.endWith(host, CustomDnsConstant.COM)) {
+            // 取.com前面的字符串
+            String[] parts = host.split("\\.");
+            engineeringName = parts[parts.length - 1];
+        } else {
+            return chain.filter(exchange);
+        }
 
         InetSocketAddress remoteAddress = request.getRemoteAddress();
         String sourceIp;
