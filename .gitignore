@@ -4,6 +4,13 @@
 */.gradle/
 build/
 out/
+.idea
+gradle/
+gradlew
+*/gradlew
+gradlew.bat
+*/gradlew.bat
+
 # Log file
 *.log
 
