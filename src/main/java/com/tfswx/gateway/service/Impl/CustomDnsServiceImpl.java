@@ -102,12 +102,12 @@ public class CustomDnsServiceImpl implements CustomDnsService {
     /**
      * 获取本机ip，
      * 多网卡或获取失败提示需要手动配置，
-     * 从yml配置属性 dns.host.server.ip 中获取
+     * 从yml配置属性 dns.ip 中获取
      *
      * @return 本机ip
      */
     private String getLocalIp() {
-        String gatewayIp = environment.getProperty("dns.gateway.ip");
+        String gatewayIp = environment.getProperty("dns.ip");
         // 如果配置了dns.gateway.ip属性，则使用该配置
         if (gatewayIp != null && !gatewayIp.isEmpty()) {
             return gatewayIp;
@@ -133,6 +133,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
         }
 
         // 返回空数组或者抛出异常，表示获取失败
+        log.info("dns服务器地址为：{}", gatewayIp);
         return gatewayIp;
     }
 
