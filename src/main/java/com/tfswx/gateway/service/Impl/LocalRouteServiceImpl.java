@@ -65,6 +65,8 @@ public class LocalRouteServiceImpl implements LocalRouteService {
         }
 
         if (CollUtil.isEmpty(pulledList)) {
+            log.warn("拉取到的路由配置数据为空！！！ 使用本地路由数据");
+            routes = GatewayStorageUtil.loadRoutes(storagePath);
             return;
         }
 
@@ -177,6 +179,10 @@ public class LocalRouteServiceImpl implements LocalRouteService {
     public String getTargetAddress(TargetAddressGetInputDTO inputDTO) {
         if (inputDTO == null) {
             throw new IllegalArgumentException("入参对象不可为空");
+        }
+        if (CollUtil.isEmpty(routes)) {
+            log.info("获取目标地址失败，路由配置数据为空！");
+            return null;
         }
         PathMatcher pathMatcher = new AntPathMatcher();
 //        routes = RoutesStorageUtil.loadRoutes(storagePath);

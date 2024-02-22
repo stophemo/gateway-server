@@ -1,1 +1,44 @@
-{"dzjzzz-web":{"default":[{"id":"2fee92029df34d27bb762fe4672ed6a9","num":1,"path":"/**","targetAddress":"http://192.168.2.199:4000"}]},"dzjzzz-server":{"default":[{"id":"2983b5fdd8744faa885eb2bfd675c2ab","num":1,"path":"/**","targetAddress":"http://192.168.2.199:8111"}]}}
+{
+  "xxzxt-server": {
+    "default": [
+      {
+        "id": "082837f2dcb845e98127618de6de8074",
+        "num": 2,
+        "path": "/api/firmk/**",
+        "targetAddress": "http://192.168.7.30:8181"
+      },
+      {
+        "id": "b7b19224e88646dc9e1ca01cdb08693d",
+        "num": 3,
+        "path": "/api/secmk/**",
+        "targetAddress": "http://192.168.7.30:8282"
+      },
+      {
+        "id": "c35ce72c87084563a2dd48686a1e76de",
+        "num": 4,
+        "path": "/api/trdmk/**",
+        "targetAddress": "http://192.168.7.30:8383"
+      },
+      {
+        "id": "8b901ab2424a433caee0884fbd69933f",
+        "num": 1,
+        "path": "/api/lypzgl/**",
+        "targetAddress": "http://192.168.1.85:9090"
+      },
+      {
+        "id": "8b901ab2424a433caee0884fbd69933",
+        "num": 5,
+        "path": "/websocket/**",
+        "targetAddress": "http://192.168.7.30:8181"
+      }
+    ],
+    "192.168.7.30": [
+      {
+        "id": "ac05e153e63a4e519ecee568aa822c53",
+        "num": 1,
+        "path": "/api/firmk/**",
+        "targetAddress": "http://192.168.7.30:8383"
+      }
+    ]
+  }
+}

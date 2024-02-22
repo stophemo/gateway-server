@@ -50,15 +50,16 @@ public class CustomFilter implements GlobalFilter, Ordered {
         // 2.将请求转发到目的地址
         ServerHttpRequest request = exchange.getRequest();
         URI requestUri = request.getURI();
+        log.info("Request address: {}", requestUri);
+
         String host = requestUri.getHost();
         String path = requestUri.getPath();
         String engineeringName;
         if (StrUtil.startWith(host, CustomDnsConstant.RJSJPT)
                 || StrUtil.startWith(host, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)
                 && StrUtil.endWith(host, CustomDnsConstant.COM)) {
-            // 取.com前面的字符串
             String[] parts = host.split("\\.");
-            engineeringName = parts[parts.length - 1];
+            engineeringName = parts[parts.length - 2];
         } else {
             return chain.filter(exchange);
         }
@@ -73,15 +74,12 @@ public class CustomFilter implements GlobalFilter, Ordered {
 
         TargetAddressGetInputDTO inputDTO = new TargetAddressGetInputDTO(engineeringName, sourceIp, path);
         String targetAddress = localRouteService.getTargetAddress(inputDTO);
-        log.info("Target address: {}", targetAddress);
+        log.info("Target  address: {}", targetAddress);
 
         URI newUri = UriComponentsBuilder.fromHttpUrl(targetAddress + path).build().toUri();
-        log.info("New URI: {}", newUri);
-
+        log.info("New         URI: {}", newUri);
         ServerHttpRequest newRequest = request.mutate().uri(newUri).build();
-
         exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newUri);
-        log.info("Exchange attributes: {}", exchange.getAttributes());
 
         return chain.filter(exchange.mutate().request(newRequest).build()).then(Mono.defer(() -> {
             exchange.getResponse().getHeaders().entrySet().stream()
@@ -94,9 +92,13 @@ public class CustomFilter implements GlobalFilter, Ordered {
                     });
             return Mono.empty();
         })).then(Mono.defer(() -> {
-            HttpHeaders headers = exchange.getResponse().getHeaders();
-            headers.add("Tf-Source-IP", sourceIp);
-            headers.add("Tf-Target-Address", targetAddress);
+            HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
+            if (!isWebSocketRequest(requestHeaders)) {
+                // 如果不是 WebSocket 连接请求，添加自定义的响应头
+                HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
+                responseHeaders.add("Tf-Source-IP", sourceIp);
+                responseHeaders.add("Tf-Target-Address", targetAddress);
+            }
             return Mono.empty();
         }));
     }
@@ -105,4 +107,17 @@ public class CustomFilter implements GlobalFilter, Ordered {
     public int getOrder() {
         return RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER + 1;
     }
+
+    /**
+     * 判断是否websocket连接请求
+     *
+     * @param requestHeaders 请求头
+     * @return 布尔值
+     */
+    private boolean isWebSocketRequest(HttpHeaders requestHeaders) {
+        return requestHeaders.containsKey("Upgrade") && requestHeaders.containsKey("Connection") &&
+                "websocket".equalsIgnoreCase(requestHeaders.getFirst("Upgrade")) &&
+                "upgrade".equalsIgnoreCase(requestHeaders.getFirst("Connection"));
+    }
+
 }
