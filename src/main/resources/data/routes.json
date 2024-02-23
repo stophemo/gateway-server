@@ -30,6 +30,18 @@
         "num": 5,
         "path": "/websocket/**",
         "targetAddress": "http://192.168.7.30:8181"
+      },
+      {
+        "id": "8b901ab2424a433caee0884fbd6993",
+        "num": 6,
+        "path": "/tail-f/**",
+        "targetAddress": "http://192.168.7.30:8181"
+      },
+      {
+        "id": "8b901ab2424a433caee0884fbd699",
+        "num": 7,
+        "path": "/tail-f",
+        "targetAddress": "http://192.168.7.30:8181"
       }
     ],
     "192.168.7.30": [
