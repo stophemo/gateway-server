@@ -16,6 +16,8 @@ public class GateWayConstant {
     public static final String TARGETADDRESS = "targetAddress";
     public static final String ISDEFAULT = "isDefault";
     public static final String ROUTES_FILE_NAME = "routes.json";
-
     public static final String DNS_FILE_NAME = "dns_List.json";
+
+    // 浏览器图标
+    public static final String FAVICON_PATH = "/favicon.ico";
 }

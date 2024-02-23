@@ -1,14 +1,14 @@
 package com.tfswx.gateway.filter;
 
 import cn.hutool.core.util.StrUtil;
-import com.tfswx.gateway.dto.TargetAddressGetInputDTO;
 import com.tfswx.gateway.config.CustomDnsConstant;
+import com.tfswx.gateway.config.GateWayConstant;
+import com.tfswx.gateway.dto.TargetAddressGetInputDTO;
 import com.tfswx.gateway.service.LocalRouteService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter;
-import org.springframework.cloud.gateway.filter.WebsocketRoutingFilter;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
@@ -51,10 +51,16 @@ public class CustomFilter implements GlobalFilter, Ordered {
         // 2.将请求转发到目的地址
         ServerHttpRequest request = exchange.getRequest();
         URI requestUri = request.getURI();
+        log.info("----------------------------------");
         log.info("Request address: {}", requestUri);
 
         String host = requestUri.getHost();
         String path = requestUri.getPath();
+        // 浏览器图标请求不做处理
+        if (GateWayConstant.FAVICON_PATH.equals(path)) {
+            return chain.filter(exchange);
+        }
+
         String engineeringName;
         if (StrUtil.startWith(host, CustomDnsConstant.RJSJPT)
                 || StrUtil.startWith(host, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)
