@@ -1,5 +1,6 @@
 package com.tfswx.gateway.service.Impl;
 
+import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import com.tfswx.gateway.config.CustomDnsConstant;
 import com.tfswx.gateway.model.CustomDomain;
@@ -9,6 +10,8 @@ import com.tfswx.gateway.util.GatewayStorageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,10 +32,11 @@ import java.util.Map;
  **/
 @Slf4j
 @Service
-public class CustomDnsServiceImpl implements CustomDnsService {
+public class CustomDnsServiceImpl implements CustomDnsService, ApplicationListener<ApplicationReadyEvent> {
 
     private volatile Map<String, DnsItem> dnsItemMap;
-    private String localIp;
+
+    private String dnsIp;
 
     @Value("${storage.path}")
     private String storagePath;
@@ -47,8 +51,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
         } else {
             dnsItemMap = GatewayStorageUtil.loadDnsMap(storagePath);
         }
-        localIp = getLocalIp();
-        log.info("开发网关服务器地址为：{}", localIp);
+        dnsIp = getDnsIp();
     }
 
     @Scheduled(fixedRate = 15 * 60 * 1000)
@@ -66,7 +69,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
         if (StrUtil.isBlank(customDomain.getProejctName()) || StrUtil.isBlank(customDomain.getEngineeringName())) {
             throw new IllegalArgumentException("项目名和工程名不能为空");
         }
-        byte[] parseIpAddress = parseIpAddress(localIp);
+        byte[] parseIpAddress = parseIpAddress(dnsIp);
         append(customDomain.getTotalDomain(), parseIpAddress);
         append(customDomain.getShortDomain(), parseIpAddress);
         GatewayStorageUtil.saveDnsMap(dnsItemMap, storagePath);
@@ -90,7 +93,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
         if (StrUtil.startWith(name, CustomDnsConstant.RJSJPT)
                 || StrUtil.startWith(name, CustomDnsConstant.WWW + "." + CustomDnsConstant.RJSJPT)) {
 
-            DnsItem dnsItem = new DnsItem(name, localIp, parseIpAddress(localIp));
+            DnsItem dnsItem = new DnsItem(name, dnsIp, parseIpAddress(dnsIp));
             dnsItemMap.putIfAbsent(name, dnsItem);
             return dnsItem;
 
@@ -106,11 +109,11 @@ public class CustomDnsServiceImpl implements CustomDnsService {
      *
      * @return 本机ip
      */
-    private String getLocalIp() {
-        String gatewayIp = environment.getProperty("dns.ip");
-        // 如果配置了dns.gateway.ip属性，则使用该配置
-        if (gatewayIp != null && !gatewayIp.isEmpty()) {
-            return gatewayIp;
+    private String getDnsIp() {
+        String configIp = environment.getProperty("dns.ip");
+        // 如果配置了dns.ip属性，则使用该配置
+        if (configIp != null && !configIp.isEmpty()) {
+            return configIp;
         }
 
         // 如果没有配置dns.gateway.ip属性，则尝试获取本机IP
@@ -124,7 +127,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
                     InetAddress inetAddress = inetAddresses.nextElement();
                     if (!inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
                         // 获取ip地址
-                        gatewayIp = inetAddress.getHostAddress();
+                        return inetAddress.getHostAddress();
                     }
                 }
             }
@@ -132,9 +135,7 @@ public class CustomDnsServiceImpl implements CustomDnsService {
             throw new RuntimeException("获取本机IP失败，请手动配置dns.gateway.ip属性", e);
         }
 
-        // 返回空数组或者抛出异常，表示获取失败
-        log.info("dns服务器地址为：{}", gatewayIp);
-        return gatewayIp;
+        return null;
     }
 
     private byte[] parseIpAddress(String ipAddress) {
@@ -157,5 +158,10 @@ public class CustomDnsServiceImpl implements CustomDnsService {
                 Byte.toUnsignedInt(ipBuf[3])
         ));
         dnsItemMap.put(dnsItem.getDomain(), dnsItem);
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        log.info("--- DNS服务器地址：{}", dnsIp);
     }
 }
